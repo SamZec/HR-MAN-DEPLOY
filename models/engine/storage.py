@@ -10,7 +10,7 @@ class Storage:
     
     def connect(self):
         if self.db is None:
-            self.db = connect(host="mongodb://"+host)
+            self.db = connect(host=host)
 
     def close(self):
         disconnect()
