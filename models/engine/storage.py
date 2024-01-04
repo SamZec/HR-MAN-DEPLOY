@@ -10,7 +10,7 @@ class Storage:
     
     def connect(self):
         if self.db is None:
-            self.db = connect(host=host)
+            self.db = connect(db='hrman', host=host)
 
     def close(self):
         disconnect()
