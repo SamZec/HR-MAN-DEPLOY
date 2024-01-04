@@ -4,3 +4,4 @@ bcrypt
 flask-login
 mongoengine
 reportlab
+pymongo
