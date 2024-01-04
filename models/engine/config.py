@@ -3,7 +3,7 @@
 
 # Assumed you have run 'pip install pymongo'
 import pymongo
-databaseName = 'YOUR_DATABASE_NAME'
+databaseName = 'hrman'
 settings = {
   'host': 'iad2-c17-2.mongo.objectrocket.com:53259,iad2-c17-0.mongo.objectrocket.com:53259,iad2-c17-1.mongo.objectrocket.com:53259',
   'username': 'hrman',
