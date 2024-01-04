@@ -1,0 +1,6 @@
+flask
+gunicorn
+bcrypt
+flask-login
+mongoengine
+reportlab
