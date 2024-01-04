@@ -11,9 +11,9 @@ h_pwd = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 objects1 = {
         'staff_number': 'NCT8649',
-        'first_name': 'Raymond',
-        'last_name': 'Asemonu',
-        'email': 'ray@mail.com',
+        'first_name': 'Samuel',
+        'last_name': 'Affum',
+        'email': 'sam@mail.com',
         'password': h_pwd,
         'date_of_birth': date(2020, 8, 25).isoformat(),
         'phone': '0215122652',
@@ -22,14 +22,15 @@ objects1 = {
         'employment_date': date(2020, 8, 25).isoformat(),
         'gender': 'Male',
         'department': 'IT',
-        'position': 'Software engineer'
+        'position': 'Software engineer',
+        'Superuser': True
         }
 
 objects2 = {
         'staff_number': 'NCT2111',
         'first_name': 'Roy',
         'last_name': 'Efe',
-        'email': 'roy@gmail.com',
+        'email': 'rose@mail.com',
         'password': h_pwd,
         'date_of_birth': date(2020, 8, 25).isoformat(),
         'phone': '08077763334',
@@ -39,7 +40,7 @@ objects2 = {
         'gender': 'Female',
         'department': 'Project',
         'position': 'PMO',
-        'Superuser': True
+        'Superuser': False
         }
 
 objects3 = {
@@ -59,9 +60,6 @@ objects3 = {
         }
 
 storage.connect()
-
-Leave.drop_collection()
-User.drop_collection()
 
 user = User(**objects1)
 user2 = User(**objects2)
