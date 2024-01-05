@@ -182,18 +182,16 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/delete/<string:staff_number>', methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/delete/<string:staff_number>', methods=['GET'], strict_slashes=False)
 def delete(staff_number):
-    if request.method == 'POST':
-    #    return render_template('delete.html')
-        staff_number = request.form.get('staff_number')
-        result = storage.delete_staff(User, staff_number)
-        if result:
-            flash('Deleted successful!', 'success')
-            return redirect(url_for('get_employees'))
-
-        flash('Delete unsuccessful!, check Staff Number')
+    #return render_template('delete.html')
+    result = storage.delete_staff(User, staff_number)
+    if result:
+        flash('Deleted successful!', 'success')
         return redirect(url_for('get_employees'))
+
+    flash('Delete unsuccessful!, check Staff Number')
+    return redirect(url_for('get_employees'))
 
 
 @app.route('/update/<string:staff_number>', methods=['POST', 'GET'], strict_slashes=False)
