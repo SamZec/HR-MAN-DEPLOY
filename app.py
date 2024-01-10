@@ -15,6 +15,7 @@ from models.payroll import Payroll
 from models.payslip import Payslip
 from payroll import create_payroll
 from payslip import create_payslip
+from models.messages import Message
 import bcrypt
 from mongoengine.errors import NotUniqueError
 from models.user import random_password, gen_employee_id, send_email, valid_fields
@@ -66,9 +67,8 @@ def register_user():
     last_name = data.get('last_name')
     email = data.get('email')
     dob = data.get('date_of_birth')
-    contact_number = data.get('phone_number')
+    contact_number = data.get('phone')
     employment_date = data.get('employment_date')
-    NID = data.get('NID')
     gender = data.get('gender')
     department = data.get('department')
     position = data.get('position')
@@ -94,7 +94,6 @@ def register_user():
         'password': hashed_password.decode('utf-8'),
         'date_of_birth': dob,
         'phone': contact_number,
-        'NID': NID,
         'employment_date': employment_date,
         'gender': gender,
         'department': department,
@@ -105,7 +104,11 @@ def register_user():
     user.save()
 
     # Send the password to the user's email
-    send_email(email, password)
+    try:
+        send_email(email, password)
+    except Exception:
+        flash("Couldn't send password to employee's email")
+        return redirect(url_for('register_user'))
 
     flash('Created successful!', 'success')
     return render_template('employee.html')
@@ -155,7 +158,9 @@ def login():
 def home():
     users = User.objects.count()
     payslips = Payslip.objects.count()
-    return render_template('dashboard.html', users=users, payslips=payslips)
+    messages = Message.objects(viewed=False)
+    return render_template('dashboard.html', users=users, payslips=payslips,
+                           messages=messages, count=messages.count())
 
 @app.route('/employees', methods=['GET'], strict_slashes=False)
 @login_required
@@ -170,7 +175,8 @@ def get_employees():
 
         return render_template('listemployees.html', rows=employee_list)
     except Exception as e:
-        return str(e), 500
+        flash('Your are not authorise', 'error')
+        return redirect(url_for('home'))
 
 
 @app.route('/logout')
@@ -182,37 +188,65 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/delete/<string:staff_number>', methods=['GET'], strict_slashes=False)
+@app.route('/update/delete', methods=['GET'], strict_slashes=False)
+@login_required
+def update_delete():
+    try:
+        # Check if user is a Superuser
+        if not current_user.Superuser:
+            flash('Your are not authorise', 'error')
+            return redirect(url_for('home'))
+
+        # Return list of employees in the database
+        update_delete = storage.all(User)
+
+        return render_template('update_delete.html', rows=update_delete)
+    except Exception as e:
+        flash('Oops something went wrong', 'error')
+        return render_template('update_delete.html', rows=update_delete)
+
+
+
+# endpoit for deleting employeees
+@app.route('/delete/<string:staff_number>', methods=['DELETE'], strict_slashes=False)
 def delete(staff_number):
-    #return render_template('delete.html')
-    result = storage.delete_staff(User, staff_number)
-    if result:
-        flash('Deleted successful!', 'success')
-        return redirect(url_for('get_employees'))
+    try:
+        # search and delete employee by staff_number
+        result = storage.delete_staff(User, staff_number)
+        if result:
+            flash('Deleted Successfully!', 'success')
+            return redirect(url_for('update_delete'))
 
-    flash('Delete unsuccessful!, check Staff Number')
-    return redirect(url_for('get_employees'))
-
-
+        # if no result return to the lisemployees page 
+        flash('Delete unsuccessful!, check Staff Number', 'error')
+        return redirect(url_for('update_delete'))
+    except Exception as e:
+        flash('Oops something went wrong', 'error')
+        return redirect(url_for('update_delete'))
+    
+# This endpoit updates emploees records
 @app.route('/update/<string:staff_number>', methods=['POST', 'GET'], strict_slashes=False)
 def update(staff_number):
     try:
+        # check if employee exist by the staff_number
         employee = User.objects(staff_number=staff_number).first()
 
         if request.method == 'POST':
-
+            # retrieve data from the form and update the records 
             updated_data = request.form
             for key, value in updated_data.items():
                 if hasattr(employee, key):
                     setattr(employee, key, value)
             employee.save()
-            flash('Employee details updated successfully')
+            flash('Employee details updated successfully', 'success')
             return redirect(url_for('get_employees'))
 
         return render_template('updateemployee.html', employee=employee)
 
     except Exception as e:
-        return
+        flash('Oops something went wrong', 'error')
+        return redirect(url_for('update_delete'))
+
 
 @app.route('/viewpayroll', defaults={'name': None}, strict_slashes=False)
 @app.route('/viewpayroll/<string:name>', methods=['GET', 'POST'])
@@ -450,6 +484,22 @@ def resetpwd():
     return render_template('resetpwd.html')
 
 
+
+@app.route('/messages', methods=['POST'], defaults={'email': None})
+@app.route('/messages/<string:email>', methods=['GET'], strict_slashes=False)
+def message(email):
+    if request.method == 'POST':
+        try:
+            massage = Message(**request.form).save()
+        except Exception as e:
+            return "Message Not Sent"
+        return "Message Sent"
+    message = Message.objects(email=email).first()
+    if message:
+        return message.message
+    return 'Not found'
+
+
 @app.route('/leave', methods=['POST', 'GET'], strict_slashes=False)
 def leave():
     if request.method == 'POST':
@@ -462,10 +512,10 @@ def leave():
         leaveType = data.get('leave_type')
 
         if startDate < datetime.now():
-            flash("Start date cannot be lower than current date")
+            flash('Start date cannot be lower than current date', 'error')
             return render_template('leavereq.html')
         if endDate <= startDate:
-            flash("End date should be higher than start date")
+            flash('End date should be higher than start date', 'error')
             return render_template('leavereq.html')
         leave_days = (endDate - startDate).days + 1
         user = storage.find_staff(User, staffNumber)
@@ -483,11 +533,11 @@ def leave():
                 leave_req = Leave(**leave_data)
                 leave_req.save()
             else:
-                flash(f"You have 30 days leave limit")
+                flash(f"You have 30 days leave limit", "error")
                 return render_template('leavereq.html')
         if leave:
             if leave.remaining < leave_days:
-                flash(f"You have only {user.remaining} days left")
+                flash(f"You have only {leave.remaining} days left")
                 return render_template('leavereq.html')
             leave_data = {
                     'start_date': startDate,
@@ -500,7 +550,7 @@ def leave():
             for key, value in leave_data.items():
                 setattr(leave, key, value)
             leave.save()
-            flash("Leave application successful and pending approval")
+            flash("Leave application successful and pending approval", "success")
             return redirect(url_for('leave_history'))
     return render_template('leavereq.html')
 
@@ -524,23 +574,24 @@ def accept_reject():
     comment = request.form.get('comment')
     staff_number = request.form.get('staff_number')
     user =  storage.find_staff(User, staff_number)
-    leave = Leave.objetcs(staff=user).first()
+    leave = Leave.objects(staff=user).first()
     if leave is None:
         abort(404)
     if len(comment) == 0:
-        user.comment = 'No comments'
+        leave.comment = 'No comments'
     else:
-        user.comment = comment
+        leave.comment = comment
     if decision == 'accept':
-        user.leave_status = 'Accepted'
-        user.remaining -= user.requested_days
-        flash(f"You have successfully approved {user.staff_name}'s leave")
+        leave.leave_status = 'Accepted'
+        leave.remaining -= leave.requested_days
+        flash(f"You have successfully approved {leave.staff_name}'s leave")
     elif decision == 'reject':
-        user.leave_status = 'Declined'
-        flash(f"You declined {user.staff_name}'s leave")
+        leave.leave_status = 'Declined'
+        flash(f"You declined {leave.staff_name}'s leave")
     else:
         flash("You can either approve or decline")
-        user.save()
+        return redirect(url_for('leave_approval'))
+    leave.save()
     return redirect(url_for('leave_approval'))
 
 @app.route('/leave_history', methods=['GET'], strict_slashes=False)

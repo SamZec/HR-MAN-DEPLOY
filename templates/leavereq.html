@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">    
-        <div class="title">Employee Leave Application</div>
+	    <div class="title">Employee Leave Application</div>
 
         <form action="/leave" method="POST">
           <div class="user__details">
@@ -46,21 +46,18 @@
 
 		{% with messages = get_flashed_messages() %}
 			{% if messages %}
-				{{ messages }}
+				{{ messages[0] }}
 			{% endif %}
 		{% endwith %}
       
           </div>
           <div class="button">
-         <input type="submit" value="Submit"> 
-         <a href="/home"><input type="submit" value="Cancel"></a> 
-         
+		  <input type="submit" value="Submit"><span></span>
+	 <a href='/home'><input type="button" value="Cancel"></a>
           </div>
-         
           </div>
          
         </form>
-       
       </div>
    
 </body>

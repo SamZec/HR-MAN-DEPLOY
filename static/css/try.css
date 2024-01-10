@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
-body {
+/*body {
 	box-sizing: border-box;
 	background: #f2f2f2;
 	font-family: "Roboto", sans-serif;
@@ -7,14 +7,14 @@ body {
 	align-items: center;
 	justify-content: center;
 }
-
-.container {
+*/
+.try-container {
 	background: #fff;
 	width: 50%;
 	padding: 1rem;
 }
 
-.title {
+.try-title {
 	font-size: 24px;
 	line-height: 28px;
 	font-weight: bold;
@@ -24,7 +24,7 @@ body {
 }
 
 .form-group {
-	margin-top: 25px;
+	margin-top: 20px;
 	display: flex;
 	flex-direction: column;
 }
@@ -59,7 +59,7 @@ body {
 .textarea-group textarea {
 	resize: none;
 	width: 100%;
-	margin-top: 10px;
+	margin-top: 5px;
 	height: calc(100% - 59px);
 }
 
@@ -114,8 +114,8 @@ body {
 	border-radius: 6px;
 	color: white;
 	width: 100%;
-	margin-top: 15px;
-	margin-left: 10px;
+	margin-left: 24px;
+	margin-top: 24px;
 }
 .button:hover {
 	background: #6e67ee;
@@ -130,7 +130,7 @@ body {
 		justify-content: center;
 	}
 
-	.container {
+	.try-container {
 		margin: 2rem;
 		box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
 		border-radius: 4px;
@@ -139,7 +139,7 @@ body {
 	}
 }
 @media screen and (min-width: 1024px) {
-	.container {
+	.try-container {
 		max-width: 80%;
 		width: 100%;
 	}
@@ -151,7 +151,7 @@ body {
 		margin-left: 1rem;
 	}
 
-	.grid {
+	.try-grid {
 		display: grid;
 		grid-gap: 24px;
 		grid-template-columns: 1fr 1fr 1fr;

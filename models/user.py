@@ -15,8 +15,8 @@ class User(Document, UserMixin):
     password = StringField(required=True, max_length=70)
     phone = StringField(required=True, max_length=70)
     date_of_birth = DateTimeField(default=date(1670, 12,20).isoformat())
-    NID = StringField(required=True, max_length=70)
-    SSNIT = StringField(required=True, default='1234')
+    NID = StringField(required=True, max_length=70, default='1234')
+    SSNIT = StringField(required=True, unique=False, default='1234')
     employment_date = DateTimeField(default=date(200, 12,20).isoformat())
     gender = StringField(required=True, max_length=20)
     department = StringField(required=True, max_length=70)
@@ -59,7 +59,7 @@ def send_email(email, password):
 def valid_fields(data):
     required_fields = [
     'first_name', 'last_name', 'email', 'date_of_birth',
-    'phone_number', 'employment_date', 'NID', 'gender',
+    'phone', 'employment_date', 'gender',
     'department', 'position'
     ]
     for field in required_fields:

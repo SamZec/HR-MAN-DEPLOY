@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from mongoengine import connect, disconnect
-from models.engine.config import host
 
 
 class Storage:
@@ -10,7 +9,7 @@ class Storage:
     
     def connect(self):
         if self.db is None:
-            self.db = connect(db='hrman', host=host)
+            self.db = connect(host="mongodb://localhost:27017/hr-mandb")
 
     def close(self):
         disconnect()

@@ -30,6 +30,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
+  <!-- Link Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
   <!-- Template Main CSS File -->
   <link href="/static/assets/css/style.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/leave.css">
@@ -44,7 +47,8 @@
 
       <h1 class="logo"><a href="">HR-MAN<span>.</span></a></h1>
 
-      <nav class="nav-menu d-none d-lg-block">
+      <nav class="nav__menu d-none d-lg-block">
+        <!--
         <ul>
           <li><a href="{{ url_for('home') }}">Home</a></li>
           <li><a href="#services">Services</a></li>
@@ -52,88 +56,141 @@
           <li><a href="#testimonials">Testimonials</a></li>
           <li><a href="#team">Team</a></li>
           <li><a href="#contact">Contact</a></li>
-        </ul>
+	  </ul>--!>
       </nav><!-- .nav-menu -->
 
-      <a href="#about" class="get-started-btn scrollto">Log Out</a>        
+      <a href="/logout" class="get-started-btn scrollto">Log Out</a>        
 
     </div>
   </header><!-- End Header -->
 
   <main id="main">
-    <div id="Details"></br>
-        <h3>Leave Approval</h3> 
-        <table style="width:100%" class = "hhhh" >
+    <!-- ======= Breadcrumbs ======= -->
+    <section class="breadcrumbs">
+      <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>View Leave Approval</h2>
+          <ol>
+	    <li><a href="{{ url_for('home') }}">Home</a></li>
+            <li>Leave Approval</li>
+          </ol>
+        </div>
+
+      </div>
+    </section>
+    <!-- End Breadcrumbs -->
+
+    <div class="table__wrapper">
+      <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'info' %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% elif category == 'success' %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% elif category == 'error' %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    </div>
+      <table>
+        <thead>
           <tr>
-            <th>S/N</th>
+	    <th>Staff Number</th>
             <th>Staff Name</th>
             <th>Start Date</th>
             <th>End Date</th>
-			<th>Leave Type</th>
+            <th>Leave Type</th>
             <th>Requested Days</th>
-			<th>Remaining Leave Days</th>
+            <th>Remaining Days</th>
             <th>Current Status</th>
-			<th>Decision</th>
-			<th>Comments</th>
-
+            <th>Comments</th>
+            <th style='width: 150px;'>Decision</th>
           </tr>
+        </thead>
+        <tbody>
           {% for row in rows %}
           <tr>
-          <td>{{row["S/N"]}}</td>
-		  <td>{{row["staff_name"]}}</td>
-		  <td>{{row["start_date"]}}</td>
-		  <td>{{row["end_date"]}}</td>
+          <td>{{row.staff.staff_number}}</td>
+          <td>{{row["staff_name"]}}</td>
+          <td>{{row["start_date"].strftime('%Y-%m-%d')}}</td>
+          <td>{{row["end_date"].strftime('%Y-%m-%d')}}</td>
           <td>{{row["leave_type"]}}</td>
           <td>{{row["requested_days"]}}</td>
 		  <td>{{row["remaining"]}}</td>
 		  <td>{{row["leave_status"]}}</td>
  
-         <form id="myForm" action="/process_form" method="POST"> 
-        <td><button class="xxxx" type="button" onclick="submitForm('accept')">Accept</button>
-        <button class="xxxx" type="button" onclick="submitForm('reject')">Decline</button></td>
-	
-		<td><label for="comment"</label>
-		<textarea id="comment" name="comment" placeholder="write your comments and update" rows="1" cols="50"></textarea></td>
+         <form id="myForm" action="/process_form" method="POST">
+
+		<td><label for="comment"></label>
+		<textarea id="comment" name="comment" placeholder="write your comments and update" rows="1" cols="30"></textarea></td>
+
+        <td><button style='margin-right: 5px;' type="button" onclick="submitForm('accept', '{{ row.staff.staff_number }}')">Accept</button>
+        <button type="button" onclick="submitForm('reject', '{{ row.staff.staff_number }}')">Decline</button></td>
     </form>    
-           <!-- <td><select>
-              <option value="Pending">Pending</option>
-              <option value="Accept">Accept</option>
-              <option value="Reject">Reject</option>
-              </select></td>
-			  <td><input type="text" id="commentsInput" placeholder="write your comments and update" class="form-control" /></td>
-            <td> 
-			<button type="button" id="getDataButton" class="btn btn-xs btn-success" data-toggle="modal" data-target="#myModalUpdate" onclick='getData()'>Accept</button>
-			<button type="button" id='rejectbutton' class="btn btn-xs btn-warning" data-toggle="modal" data-target="#myModalDelete" oneclick="handleAction('reject', '{{row["staff_number"]}}')">Reject</button></td>-->
           </tr>
-		{% endfor %}
-        </table>
-      </div>
-	 {% with messages = get_flashed_messages() %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- {% with messages = get_flashed_messages() %}
 			{% if messages %}
-				{{ messages }}
+				{{ messages[0] }}
 			{% endif %}
 		{% endwith %}
-      
+       -->
 	<script>
-        function submitForm(decision) {
+        function submitForm(decision, staffNumber) {
+			 var form = document.getElementById('myForm');
 			 var existingDecisionInput = document.getElementById('decisionInput');
     		 if (existingDecisionInput) {
-				existingDecisionInput.remove();
+				 existingDecisionInput.remove();
     }
             // Set the selected decision in the hidden input field
             var hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
 			hiddenInput.id = 'decisionInput';
             hiddenInput.name = 'decision';
-            hiddenInput.value = decision;
+            hiddenInput.value = decision || 'pending';
 
-            // Append the hidden input to the form
-            document.getElementById('myForm').appendChild(hiddenInput);
+		    var hiddenStaffNumberInput = document.createElement('input');
+        	hiddenStaffNumberInput.type = 'hidden';
+        	hiddenStaffNumberInput.name = 'staff_number';
+        	hiddenStaffNumberInput.value = staffNumber;
 
-            // Submit the form
-            document.getElementById('myForm').submit();
+			var commentInput = document.createElement('input');
+    		commentInput.type = 'hidden';
+    		commentInput.name = 'comment';
+    		commentInput.value = document.getElementById('comment').value;
+
+			//form.appendChild(decisionInput);
+			form.appendChild(hiddenInput);
+			form.appendChild(hiddenStaffNumberInput);
+    		form.appendChild(commentInput);
+            form.submit();
         }
     </script>
+    
 	
 
   </main><!-- End #main -->
@@ -160,6 +217,10 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+  <!-- Link Bootstrap JS and jQuery (for close functionality) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
 
