@@ -236,6 +236,8 @@ def update(staff_number):
             updated_data = request.form
             for key, value in updated_data.items():
                 if hasattr(employee, key):
+                    if key == 'Superuser':
+                        value = eval(value)
                     setattr(employee, key, value)
             employee.save()
             flash('Employee details updated successfully', 'success')
